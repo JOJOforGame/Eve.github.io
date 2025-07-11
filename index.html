@@ -1,11 +1,99 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Welcome to My Site</title>
-  </head>
-  <body>
-    <h1>Hello, I'm Eva</h1>
-    <p>This is my personal website powered by GitHub Pages.</p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Eve's Personal Site</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #f8f9fa, #eef1f5);
+      color: #333;
+      padding: 40px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #ffffffcc;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      font-size: 3em;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    h2 {
+      font-size: 1.5em;
+      color: #6c757d;
+      margin-bottom: 30px;
+    }
+    .section {
+      margin-top: 30px;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+    }
+    .link {
+      text-decoration: none;
+      color: #0077cc;
+    }
+    footer {
+      text-align: center;
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Hello, I'm Eve 👩‍🚀</h1>
+    <h2>Indie game developer & AI enthusiast</h2>
+
+    <div class="section">
+      <h3>🧩 About Me</h3>
+      <div class="card">
+        <p>I create story-driven, AI-native games from Unity. I believe in games that think, feel, and grow alongside the player. Currently building a space milk tea shop adventure ☕🚀.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>🎮 Featured Projects</h3>
+      <div class="card">
+        <strong>Cosmos Milk Tea</strong>  
+        <p>A sci-fi visual novel where AI NPCs learn and evolve through conversations with the player. Built in Unity with LLM integration.</p>
+      </div>
+      <div class="card">
+        <strong>Gacha Simulator: Text Adventure</strong>  
+        <p>A mobile-first interactive experience mixing randomness, storytelling, and neural networks.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>📫 Contact Me</h3>
+      <div class="card">
+        <p>Email: <a class="link" href="mailto:yiwenyang1102@gmail.com">yiwenyang1102@gmail.com</a></p>
+        <p>LinkedIn: <a class="link" href="https://www.linkedin.com/in/yiwen-yang-908675b4?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank">LinkedIn</a></p>
+      </div>
+    </div>
+
+    <footer>© 2025 Eve. All rights reserved.</footer>
+  </div>
+</body>
 </html>
