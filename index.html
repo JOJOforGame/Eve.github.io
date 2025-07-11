@@ -2,98 +2,135 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Eve's Personal Site</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eve | Indie Developer & AI Engineer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0; padding: 0;
-      box-sizing: border-box;
-    }
     body {
+      margin: 0;
       font-family: 'Outfit', sans-serif;
-      background: linear-gradient(135deg, #f8f9fa, #eef1f5);
+      background: linear-gradient(135deg, #f5f7fa, #e6ecf3);
       color: #333;
-      padding: 40px;
+      line-height: 1.6;
     }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: #ffffffcc;
-      padding: 40px;
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
-      backdrop-filter: blur(10px);
+    header {
+      padding: 60px 20px 30px;
+      text-align: center;
     }
     h1 {
-      font-size: 3em;
-      font-weight: 800;
-      margin-bottom: 10px;
+      font-size: 3.5em;
+      margin-bottom: 0.2em;
     }
     h2 {
-      font-size: 1.5em;
-      color: #6c757d;
-      margin-bottom: 30px;
+      font-weight: 400;
+      color: #666;
     }
     .section {
-      margin-top: 30px;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
     }
     .card {
       background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      padding: 30px;
+      margin-bottom: 30px;
       transition: transform 0.2s;
     }
     .card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-6px);
     }
-    .link {
-      text-decoration: none;
-      color: #0077cc;
+    .highlight {
+      color: #0057ff;
+      font-weight: bold;
+      font-family: 'Fira Code', monospace;
+      background: #eef3ff;
+      padding: 0 4px;
+      border-radius: 4px;
+    }
+    .tag {
+      display: inline-block;
+      background: #e9f2ff;
+      color: #0057ff;
+      font-size: 0.85em;
+      padding: 4px 8px;
+      margin: 4px 6px 4px 0;
+      border-radius: 6px;
+      font-family: 'Fira Code', monospace;
     }
     footer {
       text-align: center;
-      margin-top: 50px;
+      color: #888;
       font-size: 0.9em;
-      color: #999;
+      padding: 30px;
+    }
+    a {
+      color: #0057ff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Hello, I'm Eve 👩‍🚀</h1>
-    <h2>Indie game developer & AI enthusiast</h2>
 
-    <div class="section">
-      <h3>🧩 About Me</h3>
-      <div class="card">
-        <p>I create story-driven, AI-native games from Unity. I believe in games that think, feel, and grow alongside the player. Currently building a space milk tea shop adventure ☕🚀.</p>
+  <header>
+    <h1>Hi, I'm Eve 👋</h1>
+    <h2>AI-native game creator · Ex-Microsoft engineer · Builder at heart</h2>
+  </header>
+
+  <section class="section">
+    <div class="card">
+      <h3>🌌 About Me</h3>
+      <p>
+        I'm a developer who loves building things from scratch—especially those that mix storytelling, interaction, and artificial intelligence. After working at <span class="highlight">Microsoft</span> on large-scale systems and intelligent UI, I now focus full-time on crafting AI-native games that surprise and evolve with players.
+      </p>
+      <p>
+        My current project? A sci-fi milk tea shop game set on a space station ☕🚀—where characters aren't just scripted, they're learning.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>🛠 Technical Skills</h3>
+      <div>
+        <span class="tag">Unity</span>
+        <span class="tag">C#</span>
+        <span class="tag">Python</span>
+        <span class="tag">LLMs (LLaMA / GPT)</span>
+        <span class="tag">Named Pipes</span>
+        <span class="tag">System Design</span>
+        <span class="tag">TypeScript</span>
+        <span class="tag">Azure</span>
+        <span class="tag">Prompt Engineering</span>
+        <span class="tag">Shader Graph</span>
+        <span class="tag">AI Game Design</span>
       </div>
     </div>
 
-    <div class="section">
-      <h3>🎮 Featured Projects</h3>
-      <div class="card">
-        <strong>Cosmos Milk Tea</strong>  
-        <p>A sci-fi visual novel where AI NPCs learn and evolve through conversations with the player. Built in Unity with LLM integration.</p>
-      </div>
-      <div class="card">
-        <strong>Gacha Simulator: Text Adventure</strong>  
-        <p>A mobile-first interactive experience mixing randomness, storytelling, and neural networks.</p>
-      </div>
+    <div class="card">
+      <h3>🎮 Projects</h3>
+      <p><strong>Cosmos Milk Tea(2024–now):</strong>  
+        An interactive visual novel where AI NPCs are powered by offline LLMs. The narrative unlocks drinks, memories, and questions about identity. Built in Unity with <span class="highlight">C# + Python + LLaMA</span>.
+      </p>
+      <p><strong>Medical Literature Recognition System Admin Center (2022):</strong>  
+       Led the development of the Admin Center for a cutting-edge medical literature recognition system. Built using the <span class="highlight">ABP framework</span> with clean <span class="highlight">Domain-Driven Design (DDD)</span> architecture, featuring well-separated layers (Application, Domain, Infrastructure). Designed and implemented robust <span class="highlight">REST APIs</span> to support high-throughput data processing. Integrated <span class="highlight">MongoDB</span> with asynchronous access patterns for scalable, responsive data storage and retrieval.
+      </p>
+      <p><strong>Azure Portal UX(2019–2021):</strong>  
+       Contributed to production-grade UX in the Azure Portal, built internal tools with <span class="highlight">TypeScript</span>, and developed E2E testing infrastructure to support global rollouts with <span class="highlight">zero downtime</span>.
+      </p>
     </div>
 
-    <div class="section">
-      <h3>📫 Contact Me</h3>
-      <div class="card">
-        <p>Email: <a class="link" href="mailto:yiwenyang1102@gmail.com">yiwenyang1102@gmail.com</a></p>
-        <p>LinkedIn: <a class="link" href="https://www.linkedin.com/in/yiwen-yang-908675b4?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank">LinkedIn</a></p>
-      </div>
+    <div class="card">
+      <h3>📬 Contact</h3>
+      <p>Email: <a href="mailto:yiwenyang1102@gmail.com">yiwenyang1102@gmail.com</a></p>
     </div>
+  </section>
 
-    <footer>© 2025 Eve. All rights reserved.</footer>
-  </div>
+  <footer>
+    © 2025 Eve. This site is built with pure HTML, CSS, and love.
+  </footer>
+
 </body>
 </html>
