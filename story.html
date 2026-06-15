@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>大一剧情树 · 可编辑版</title>
+<style>
+:root{--bg:#fbf3ea;--paper:#fffaf4;--ink:#3c2c2a;--muted:#8b6f68;--accent:#b96b62;--accent2:#d89a72;--line:#ead8ca;--ok:#5a8f6f;--shadow:0 14px 40px rgba(105,66,46,.14)}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:radial-gradient(circle at 20% 0%,#fff7df 0,#fbf3ea 38%,#f5e6dd 100%);color:var(--ink);min-height:100vh}
+.app{max-width:980px;margin:0 auto;padding:18px 14px 90px}
+.top{position:sticky;top:0;z-index:5;margin:-18px -14px 16px;padding:12px 14px;background:rgba(251,243,234,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.toprow{max-width:980px;margin:0 auto;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand{font-weight:800;letter-spacing:.04em}
+.small{font-size:13px;color:var(--muted)}
+button,.btn{border:0;border-radius:14px;background:var(--accent);color:#fff;padding:10px 13px;font-size:15px;font-weight:650;cursor:pointer;box-shadow:0 4px 14px rgba(185,107,98,.22)}
+button.secondary{background:#fff4ec;color:var(--accent);border:1px solid #efd6ca;box-shadow:none}
+button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line);box-shadow:none;font-weight:600}
+button.tiny{padding:6px 10px;font-size:13px;border-radius:10px}
+button.danger{background:#fff;color:#b5524a;border:1px solid #ecc5c0;box-shadow:none}
+button:disabled{opacity:.5;cursor:not-allowed}
+.card{background:rgba(255,250,244,.96);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:22px}
+.title{font-size:26px;font-weight:850;margin:0 0 12px}
+.body{font-size:18px;line-height:1.8;white-space:pre-wrap}
+.choices{display:grid;gap:10px;margin-top:22px}
+.choice{display:block;text-align:left;width:100%;padding:14px 16px;border-radius:18px;background:#fff;border:1px solid #ead8ca;color:var(--ink);box-shadow:none;font-weight:650}
+.choice:hover{border-color:var(--accent2);transform:translateY(-1px)}
+.choice.disabled{opacity:.6}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.searchbox{flex:1;min-width:170px;border:1px solid var(--line);border-radius:14px;padding:11px 12px;font-size:15px;background:#fffaf7;color:var(--ink)}
+.panel{margin-top:14px;border:1px dashed #dfc2b6;border-radius:18px;padding:14px;background:#fff8f2}
+.panel summary{cursor:pointer;font-weight:800;color:var(--accent)}
+textarea,input.text{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px;font:15px/1.6 inherit;background:#fff;color:var(--ink)}
+textarea{min-height:110px;margin-top:10px;resize:vertical}
+.nodeList{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;max-height:340px;overflow:auto;padding:4px}
+.nodeItem{font-size:14px;padding:10px 12px;border-radius:12px;background:#fff;border:1px solid var(--line);cursor:pointer}
+.nodeItem:hover{border-color:var(--accent2)}
+.footer{margin-top:12px;font-size:13px;color:var(--muted);line-height:1.6}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#3c2c2a;color:#fff;border-radius:999px;padding:10px 16px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+.path{font-size:13px;color:var(--muted);margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;background:#fff1e8;color:var(--accent);border:1px solid #efdbd0;font-size:12px}
+.idtag{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--muted)}
+/* edit mode */
+.modepill{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff}
+.modepill button{background:transparent;color:var(--muted);box-shadow:none;border-radius:0;padding:9px 14px;font-size:14px}
+.modepill button.on{background:var(--accent);color:#fff}
+.editbanner{background:#fff3e9;border:1px solid #efd6ca;border-radius:14px;padding:8px 12px;margin-bottom:14px;font-size:13px;color:#9a6a4f}
+.lbl{font-size:13px;font-weight:700;color:var(--muted);margin:14px 0 6px}
+.opt-edit{border:1px solid var(--line);border-radius:16px;padding:12px;background:#fffdfa;margin-top:10px}
+.opt-edit .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.opt-num{font-weight:800;color:var(--accent2);margin-right:2px}
+.dest{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dest .chip{display:inline-flex;align-items:center;gap:6px;background:#f1efe6;border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:13px;font-weight:650}
+.dest .chip.warn{background:#fdeee9;border-color:#ecc5c0;color:#b5524a}
+select.text{width:auto;min-width:200px;max-width:100%}
+.addbar{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.spacer{flex:1}
+@media(max-width:600px){
+.app{padding:12px 10px 90px}.card{padding:18px;border-radius:20px}.title{font-size:23px}.body{font-size:17px}
+.toolbar{position:sticky;top:118px;background:rgba(251,243,234,.94);padding:8px 0;z-index:4}
+.choice{font-size:16px}.opt-edit .row{gap:6px}
+}
+</style>
+</head>
+<body>
+<div class="top"><div class="toprow">
+  <div>
+    <div class="brand">大一剧情树 <span class="badge">可编辑 · 纯 HTML</span></div>
+    <div class="small" id="modehint">点击分支试玩；剧情与备注保存在当前浏览器。</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <span class="modepill"><button id="mPlay" class="on" onclick="setMode('play')">▶ 试玩</button><button id="mEdit" onclick="setMode('edit')">✎ 编辑</button></span>
+    <button class="secondary" onclick="restart()">从头开始</button>
+    <button class="secondary" onclick="go('年级目录')">目录</button>
+  </div>
+</div></div>
+
+<main class="app">
+  <div class="toolbar">
+    <input id="search" class="searchbox" placeholder="搜索节点 / 人物 / 关键词，如 陆明川、社团、寒假" oninput="renderList(this.value)">
+    <button class="secondary" onclick="toggleList()">节点列表</button>
+    <button class="secondary" onclick="downloadHTML()">导出网页</button>
+    <button class="ghost" onclick="exportJSON()">备份</button>
+    <button class="ghost" onclick="document.getElementById('importFile').click()">导入</button>
+    <button class="ghost" onclick="exportNotes()">导出备注</button>
+    <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importJSON(this.files[0])">
+  </div>
+
+  <section id="listPanel" class="card" style="display:none;margin-bottom:14px">
+    <h3 style="margin-top:0">节点列表</h3>
+    <div id="nodeList" class="nodeList"></div>
+  </section>
+
+  <section class="card" id="nodeCard"></section>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script id="app">
+/* =======================================================================
+   大一剧情树 · 可编辑版
+   - 试玩模式：点选项往下走（和原版一样）
+   - 编辑模式：改标题/正文、给当前节点加选项、点“新建后续剧情并进入”往下写
+   - 所有改动存在浏览器 localStorage；可“导出网页”得到一个新的可分享文件
+   ======================================================================= */
+
+/*DATA:START*/const DEFAULT_DATA = {"nodes": {"开始": {"title": "开始", "body": "你是林小码，计算机学院新生。宿舍窗外是初秋的风，新的四年，从此开始。", "options": [{"label": "先去宿舍报到", "target": "大一·秋·宿舍报到"}, {"label": "查看全局目录", "target": "年级目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·目录": {"title": "大一·秋·目录", "body": "本学期建议顺序：宿舍报到 → 社团招新 → 体育选课 → 程序设计基础 → 小组作业 → 期中危机 → 体测 → 食堂偶遇", "options": [{"label": "宿舍报到", "target": "大一·秋·宿舍报到"}, {"label": "社团招新", "target": "大一·秋·社团招新"}, {"label": "体育选修课", "target": "大一·秋·体育选课"}, {"label": "程序设计基础：课堂提问", "target": "大一·秋·入学震撼"}, {"label": "小组作业：选择搭档", "target": "大一·秋·小组作业"}, {"label": "期中危机", "target": "大一·秋·期中危机"}, {"label": "体测：破晓之光", "target": "大一·秋·体测·初遇晨光"}, {"label": "食堂随机事件", "target": "大一·秋·食堂事件"}, {"label": "进入寒假", "target": "大一下·寒假"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·宿舍报到": {"title": "大一·秋·宿舍报到", "body": "宿舍门被推开时，里面已经有三个人。\n\n林小码是最后一个到的了。\n\n\n陈明明：一个带着眼镜很斯文的女生，额头有一些青春痘，看上去她已经把自己的东西都收拾妥当了，现在在坐在自己的位置上安静地看书，似乎完全不受今天入学热闹喧嚣的影响。\n\n可欣：她穿着潮牌T恤，她在上铺趴在床边刷着平板，屏幕上是某个热门综艺。\n\n林予夏：个子高高的女生，在寝室进进出出忙着整理东西，桌子上有很多社团的招新宣传单。\n\n\n可欣抬头：“啊，你终于来啦！我们宿舍的人到齐了！”\n\n陈明明合上书：“你好，我叫陈明明。以后请多关照。”\n\n林予夏笑着说：“我是林予夏。等会儿要不要一起去看看社团招新？那边广场很热闹。", "options": [{"label": "跟着林予夏去校园广场看社团招新", "target": "大一·秋·宿舍报到·去社团"}, {"label": "待在寝室休息一下", "target": "大一·秋·宿舍报到·休息"}, {"label": "和可欣去校外街上逛逛", "target": "大一·秋·宿舍报到·逛街"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·社团招新": {"title": "大一·秋·社团招新", "body": "林予夏拉着你来到校园广场。这里相当热闹，音响、海报、传单、喇叭声，各种都混合在一起。\n\n\n她把一叠传单塞给你：“不用急着定，先看一圈吧。”\n\n\n你最后停在几个摊位前：", "options": [{"label": "机器人社：许星河学长在调试表演机器人", "target": "大一·秋·社团加入结果"}, {"label": "ACM/算法协会：刷题、训练赛、排行榜", "target": "大一·秋·社团·ACM"}, {"label": "学生会宣传部：林予夏说这里消息最灵通", "target": "大一·秋·社团·学生会"}, {"label": "动漫游戏社：二次元的基地", "target": "大一·秋·社团·动漫游戏"}, {"label": "青年志愿者协会：陈明明觉得这里踏实有意义", "target": "大一·秋·社团·志愿者"}, {"label": "街舞社：", "target": ""}, {"label": "先逛一圈，暂时不报名", "target": "大一·秋·社团观望"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·体育选课": {"title": "大一·秋·体育选课", "body": "社团招新之后，学校系统开放体育选修课。热门课程几乎秒没，你盯着屏幕刷新，终于抢到一个空位。\n\n\n你选择：", "options": [{"label": "游泳课（可能遇见陆明川）", "target": "大一·秋·体育选课·游泳"}, {"label": "乒乓球课（和可欣一起）", "target": "大一·秋·体育选课·乒乓"}, {"label": "篮球课（和林予夏一起）", "target": "大一·秋·体育选课·篮球"}, {"label": "攀岩课（周晨光相关）", "target": "大一·秋·体育选课·攀岩"}, {"label": "武术课（和陈明明一起）", "target": "大一·秋·体育选课·武术"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·入学震撼": {"title": "大一·秋·入学震撼", "body": "《程序设计基础》课上，老师在黑板上写下一段伪代码：\n\n\n`count = 0`\n\n`for score in scores:`\n\n`    ???`\n\n\n老师问：“如果要统计数组 `scores` 中所有及格成绩的数量，变量 `count` 应该在什么时候自增？”\n\n\n教室里安静下来。你感觉几道目光落在自己身上。", "options": [{"label": "认真听课，举手回答", "target": "大一·秋·入学震撼·举手"}, {"label": "在位置上直接说出答案", "target": "大一·秋·入学震撼·直接说"}, {"label": "不说话，继续记笔记", "target": "大一·秋·入学震撼·沉默"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·小组作业": {"title": "大一·秋·小组作业", "body": "《程序设计基础》课后，老师布置了第一次小组作业：\n\n两人一组，完成一个简易校园信息查询程序。\n\n\n你需要找一个搭档。", "options": [{"label": "相信自己强大的实力，独立完成", "target": "大一·秋·小组作业·独立"}, {"label": "找陈明明一组", "target": "大一·秋·小组作业·陈明明"}, {"label": "找陆明川一组", "target": "大一·秋·小组作业·陆明川"}, {"label": "随便匹配一个同学", "target": "大一·秋·小组作业·随机"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·期中考试": {"title": "大一·秋·期中考试", "body": "期中考试临近。目前绩点xxx（低于3.0建议熬夜恶补）\n\n需要去自习室多学习一下。", "options": [{"label": "约陆明川一起自习", "target": "大一·秋·期中·陆"}, {"label": "找许星河学长帮你列重点清单", "target": "大一·秋·期中·许"}, {"label": "找学霸陈明明一起自习", "target": "大一·秋·期中·陈明明"}, {"label": "找可欣陪你放松一下再复习", "target": "大一·秋·期中·可欣"}, {"label": "找林予夏帮你问学长学姐要复习资料", "target": "大一·秋·期中·林予夏"}, {"label": "自己硬啃", "target": "大一·秋·期中·自修"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）\n\n大一·秋·期中·陆：\n\n（好感度大于xxx可以约成功）你约好了这周每天跟陆一起自习\n\n你需要每天早上八点起来去图书馆占座（这里可以有一个占座小游戏）\n\n\n你有一道题不太会，想跟他讨论一下：\n\nA 算了不问了，自己钻研到底\n\nB 跟他讨论一下\n\nC 自习好无聊，去外面逛逛吧"}, "大一·秋·体测·初遇晨光": {"title": "大一·秋·体测·初遇晨光", "body": "谁也逃不掉体测，女生800 米、男生1000米测试如约来临。\n\n你平时本来就很少运动，中学时期的体育课几乎全部被语数外或者自习课占了。而且今天正好是你的生理期，你有点虚弱。离终点还剩最后一百米，你觉得自己快跑不动了，速度逐渐慢了下来。\n\n这时一个男生跑到你面前，抓起你的手就往前冲刺。你感受到他的手掌温暖有力，在他的鼓舞下拼尽全力跑到了终点。体育老师按下了计时器，三分20秒，你拿到了800米满分的成绩。", "options": [{"label": "A谢谢他", "target": ""}, {"label": "B装作无事发生", "target": ""}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）\n\n选A的话就会认识周成光然后展开对话"}, "大一·秋·食堂事件": {"title": "大一·秋·食堂事件", "body": "在食堂端盘时，不慎把菜汤洒到路过的穿连帽衫的同学身上。\n\nA 向他连连道歉并且表示赔偿他的衣物损失费\n\nB 装作没看到然后赶紧跑路\n\nC 呆在原地", "options": [{"label": "返回本学期目录", "target": "大一·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）\n\n选A的话会认识隐藏角色吴峰（也是信息学院的学生，是个隐藏的黑客大佬）"}, "大一下·寒假": {"title": "大一下·寒假", "body": "寒假安排：寒假马上到了，这个假期学校有竞赛特训（这样下学期又肯能被选进acm队打比赛）", "options": [{"label": "回家过年放松", "target": "寒假·回家"}, {"label": "留校参加编程冬令营", "target": "寒假·冬令营"}, {"label": "校外公司实习，可能遇见沈野", "target": "寒假·校外公司实习"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）\n\n寒假之前应该有期末考试"}, "大一·春·目录": {"title": "大一·春·目录", "body": "本学期关键事件：ACM校内选拔｜机器人社团首秀｜绩点压力｜暑期实习申请", "options": [{"label": "ACM校内选拔", "target": "大一·春·ACM选拔"}, {"label": "机器人社团首秀", "target": "大一·春·社团首秀"}, {"label": "绩点压力", "target": "大一·春·绩点压力"}, {"label": "暑期实习申请", "target": "大一·春·实习申请"}, {"label": "进入暑假", "target": "大一·暑假"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·暑假": {"title": "大一·暑假", "body": "暑期选择：", "options": [{"label": "回家（平淡）", "target": "暑假·回家"}, {"label": "留校ACM集训（与陆明川）", "target": "暑假·ACM集训"}, {"label": "第一份小公司实习（为沈野铺垫）", "target": "暑假·小公司实习"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·小组作业·AB": {"title": "大一·秋·小组作业·AB", "body": "你们各写一个版本，再用同一组数据跑分对比。\n\n你的创意在特定数据集表现亮眼，他的实现稳定性更好。\n\n\n陆明川看完结果，难得笑了一下：“至少这次争论有数据。”", "options": [{"label": "返回本学期目录", "target": "大一·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·小组作业·折中": {"title": "大一·秋·小组作业·折中", "body": "你们把需求分成“必须完成”和“可以优化”两层。\n\n你重构了部分接口，陆明川补上了单元测试。\n\n\n他看着终于变绿的测试结果，低声说：“这样也不是不行。”", "options": [{"label": "返回本学期目录", "target": "大一·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·期中·自修": {"title": "大一·秋·期中·自修", "body": "你独自在自习室熬到深夜，第二天状态一般。\n\n\n虽然效率不算高，但至少你把最基础的题型重新过了一遍。", "options": [{"label": "返回本学期目录", "target": "大一·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·期中·许": {"title": "大一·秋·期中·许", "body": "许星河看了一眼你的复习计划：“先睡一觉，明早我给你列重点清单。”\n\n\n第二天，他真的发来一张表，把高数和程序设计拆成了“必看、选看、放弃也不致命”三栏。", "options": [{"label": "返回本学期目录", "target": "大一·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·期中·陆": {"title": "大一·秋·期中·陆", "body": "陆明川把错题圈出来：“这个思路不对，从定义推起。”\n\n\n他又跟你约明晚自习。可你忽然想起来：明晚是陈明明的生日，宿舍几个人早就说好要一起吃饭。", "options": [{"label": "去和陆明川自习，生日晚点补", "target": "大一·秋·期中·陆·自习"}, {"label": "先给陈明明过生日，再补复习", "target": "大一·秋·期中·陆·生日"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·社团加入结果": {"title": "大一·秋·社团加入结果", "body": "你在机器人社的报名表上写下名字。\n\n表演机器人沿着黑线稳定前进，最后还用机械臂把一颗糖递到你面前。\n\n\n许星河把社团群二维码递给你：“不用急着懂所有东西。先让机器人动起来，兴趣会自己长出来。”", "options": [{"label": "继续去体育选课", "target": "大一·秋·体育选课"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·社团·ACM": {"title": "大一·秋·社团·ACM", "body": "你加入了 ACM/算法协会。报名处的学长给你发了一张训练赛时间表，上面密密麻麻写着“贪心、二分、动态规划”。\n\n\n你在公告栏上看见陆明川的名字。他似乎已经是新生里很有名的刷题怪。", "options": [{"label": "继续去体育选课", "target": "大一·秋·体育选课"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·社团·学生会": {"title": "大一·秋·社团·学生会", "body": "你加入了学生会宣传部。林予夏熟练地带你认识各个部门，顺手把一份活动排期塞进你怀里。\n\n\n“大学信息差很重要。”她眨眨眼，“跟着我，至少不会错过报名截止时间。”\n\n“如果你能当上学生会主席将来还能有保研名额”", "options": [{"label": "继续去体育选课", "target": "大一·秋·体育选课"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·社团·动漫游戏": {"title": "大一·秋·社团·动漫游戏", "body": "你被可欣拉进了动漫游戏社。这个社团会定期出cos。\n\n\n可欣：“我想出那个xxx的cos，现在开始我要减肥！！！", "options": [{"label": "继续去体育选课", "target": "大一·秋·体育选课"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·社团·志愿者": {"title": "大一·秋·社团·志愿者", "body": "你跟着陈明明报了青年志愿者协会。她已经把活动日期记进了日历，还提醒你记得带学生证。\n\n\n“下次是去科技馆做志愿活动”", "options": [{"label": "继续去体育选课", "target": "大一·秋·体育选课"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "寒假·冬令营": {"title": "寒假·冬令营", "body": "你参与算法基础训练营，刷题起步。", "options": [{"label": "进入大一·春", "target": "大一·春·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "寒假·回家": {"title": "寒假·回家", "body": "你坐着高铁回到了家，爸爸妈妈都很想你，他们给你做了很多你爱吃的菜。\n\n寒假有一个小组编程作业，你打算和谁谁合作：\n\nA陆明川\n\nB陈明明\n\nC 周成光\n\nD可欣\n\nE林予夏", "options": [{"label": "进入大一·春", "target": "大一·春·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "寒假·校内项目": {"title": "寒假·校内项目", "body": "（旧入口已重定向为校外公司实习。）", "options": [{"label": "前往校外公司实习", "target": "寒假·校外公司实习"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·春·ACM复盘": {"title": "大一·春·ACM复盘", "body": "即将比赛，你打算和谁组队：", "options": [{"label": "返回本学期目录", "target": "大一·春·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·春·ACM点评·陆": {"title": "大一·春·ACM点评·陆", "body": "“你在贪心上的判断偏乐观，考虑下最坏情况。”", "options": [{"label": "返回本学期目录", "target": "大一·春·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·春·ACM选拔": {"title": "大一·春·ACM选拔", "body": "你参加ACM校内选拔。虽未入选，但收获颇多。", "options": [{"label": "听陆明川点评", "target": "大一·春·ACM点评·陆"}, {"label": "独自复盘", "target": "大一·春·ACM复盘"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·春·实习申请": {"title": "大一·春·实习申请", "body": "你向多家公司投递暑期实习，屡屡碰壁，意识到竞争激烈。", "options": [{"label": "更新简历与项目", "target": "大一·春·简历优化"}, {"label": "请教学长沈野？（尚未正式结识）", "target": "大一·春·请教未果"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·春·社团首秀": {"title": "大一·春·社团首秀", "body": "剧情正文：（这个得根据选择的社团展示）\n\n校园科技节展示，你与许星河一起操作机器人并做讲解。\n\n观众好评如潮。", "options": [{"label": "返回本学期目录", "target": "大一·春·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·春·简历优化": {"title": "大一·春·简历优化", "body": "为了暑期找实习，你开始写简历\n\n你把机器人展示与算法训练写入简历。（这得加入那个社团以及参与训练才能写）", "options": [{"label": "返回本学期目录", "target": "大一·春·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·春": {"title": "大一·春", "body": "分支/选项：\n\n- 返回本学期目录 → 大一·春·目录", "options": [{"label": "返回本学期目录", "target": "大一·春·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·春·请教未果": {"title": "大一·春·请教未果", "body": "你通过邮箱联系到某位业界导师，但并未收到回复。\n\n（或许很快会在别处相遇。）", "options": [{"label": "返回本学期目录", "target": "大一·春·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "暑假·ACM集训": {"title": "暑假·ACM集训", "body": "集训高强度，与你和陆明川逐渐熟悉。", "options": [{"label": "进入大二·秋", "target": "大二·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "暑假·回家": {"title": "暑假·回家", "body": "你维持刷题和阅读技术博客的习惯。", "options": [{"label": "进入大二·秋", "target": "大二·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "暑假·小公司实习": {"title": "暑假·小公司实习", "body": "你在小公司做开发，第一次体验上线与修Bug。\n\n某次线上事故夜修，你远远注意到一位前来协助的企业导师（沈野）名字。", "options": [{"label": "进入大二·秋", "target": "大二·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·宿舍报到·去社团": {"title": "大一·秋·宿舍报到·去社团", "body": "你接过林予夏递来的传单，发现上面密密麻麻写着机器人社、ACM协会、动漫社、摄影社……\n\n“走吧，”林予夏说，“大学第一天，不去凑热闹会亏。”", "options": [{"label": "去社团招新", "target": "大一·秋·社团招新"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·宿舍报到·休息": {"title": "大一·秋·宿舍报到·休息", "body": "你决定先把行李收好。陈明明没有打扰你，只是默默把多出来的插线板推到你桌边。\n\n“这个位置插电脑方便。”她说。\n\n你忽然觉得这个宿舍也许会比想象中更温暖。", "options": [{"label": "傍晚再去社团招新", "target": "大一·秋·社团招新"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·宿舍报到·逛街": {"title": "大一·秋·宿舍报到·逛街", "body": "可欣兴奋地拉着你出门：“学校外面有条小吃街，我刚刚已经做完攻略了！”\n\n你们买了奶茶和烤冷面。虽然钱包轻了一点，但新环境带来的紧张感也被热气冲散了。", "options": [{"label": "回校看社团招新", "target": "大一·秋·社团招新"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·社团观望": {"title": "大一·秋·社团观望", "body": "你没有立刻报名，只把机器人社的传单夹进书里。\n\n林予夏说：“没关系，大学社团很多，先看看也好。”", "options": [{"label": "继续去体育选课", "target": "大一·秋·体育选课"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·体育选课·游泳": {"title": "大一·秋·体育选课·游泳", "body": "你选了游泳。\n\n课上你看到陆明川也在这个课上，他穿着单薄的泳裤，1.8的大个子，身姿挺拔修长，白皙的肌肤，肌肉轮廓若隐若现。\n\nA上前寒暄几句\n\nB自己游自己的", "options": [{"label": "去上第一节《程序设计基础》", "target": "大一·秋·入学震撼"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）\n\n上游泳课前可以选择一下泳衣，A长袖长裤超保守派 B 超市随便买的泳衣 C 去商场买的时尚款"}, "大一·秋·体育选课·乒乓": {"title": "大一·秋·体育选课·乒乓", "body": "你选了乒乓球。可欣欢呼：“太好了！我终于有人一起摸鱼……不是，一起训练了。”", "options": [{"label": "去上第一节《程序设计基础》", "target": "大一·秋·入学震撼"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·体育选课·篮球": {"title": "大一·秋·体育选课·篮球", "body": "你选了篮球。林予夏拍了拍你的肩：“别被球砸到。”", "options": [{"label": "去上第一节《程序设计基础》", "target": "大一·秋·入学震撼"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·体育选课·攀岩": {"title": "大一·秋·体育选课·攀岩", "body": "你选了攀岩。课程助教名单里有一个名字：周晨光。", "options": [{"label": "去上第一节《程序设计基础》", "target": "大一·秋·入学震撼"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·体育选课·武术": {"title": "大一·秋·体育选课·武术", "body": "你选了武术。陈明明认真地说：“这门课应该对久坐程序员很有帮助。”", "options": [{"label": "去上第一节《程序设计基础》", "target": "大一·秋·入学震撼"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·入学震撼·举手": {"title": "大一·秋·入学震撼·举手", "body": "你举起手：“遍历每个 `score` 的时候，如果 `score >= 60`，就执行 `count = count + 1`。这样循环结束后，`count` 就是及格人数。”\n\n\n老师点头：“回答得很完整。”\n\n\n下课时，陆明川从你身边经过，低声说：“思路不错，边界也没漏。”", "options": [{"label": "继续", "target": "大一·秋·小组作业"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·入学震撼·直接说": {"title": "大一·秋·入学震撼·直接说", "body": "你几乎是下意识地在座位上说：“判断 `score >= 60` 的时候加一。”\n\n\n老师笑了笑：“答案对，不过下次记得举手。”\n\n\n前排的陆明川回头看了你一眼，像是在确认这个突然出声的人是谁。", "options": [{"label": "继续", "target": "大一·秋·小组作业"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·入学震撼·沉默": {"title": "大一·秋·入学震撼·沉默", "body": "你没有开口，只把答案写进笔记本。\n\n\n老师很快点了另一位同学回答。你发现自己其实会，只是还不习惯在大学课堂上被看见。", "options": [{"label": "继续", "target": "大一·秋·小组作业"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·小组作业·独立": {"title": "大一·秋·小组作业·独立", "body": "你决定相信自己的实力，一个人把需求、代码和测试全部扛下来。\n\n\n程序最后跑通了，但你也第一次意识到：大学里的“能做完”和“做得舒服”完全是两回事。", "options": [{"label": "返回本学期目录", "target": "大一·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·小组作业·陈明明": {"title": "大一·秋·小组作业·陈明明", "body": "陈明明爽快地答应了。\n\n\n她把需求拆成了清单，还给每个功能标了优先级。\n\n“我们先做一个能跑通的版本，再做优化。”她说。", "options": [{"label": "返回本学期目录", "target": "大一·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·小组作业·陆明川": {"title": "大一·秋·小组作业·陆明川", "body": "陆明川爽快地答应了你的组队请求。\n\n\n“可以。”他说，“明天晚上图书馆，先把需求和接口定下来。”\n\n\n你们约好明晚一起去图书馆自习讨论。", "options": [{"label": "明晚赴约", "target": "大一·秋·小组作业·陆明川·讨论"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·小组作业·陆明川·讨论": {"title": "大一·秋·小组作业·陆明川·讨论", "body": "图书馆自习区里，你和陆明川摊开需求文档。\n\n\n你的代码偏创意，想先把效果做出来；他偏严谨，坚持先把接口和边界条件写清楚。\n\n第一次合作，风格冲突来得比你想象中更快。", "options": [{"label": "主动沟通，达成折中", "target": "大一·秋·小组作业·折中"}, {"label": "坚持自我，写两个版本做AB对比", "target": "大一·秋·小组作业·AB"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·小组作业·随机": {"title": "大一·秋·小组作业·随机", "body": "系统随机给你匹配到可欣。\n\n\n可欣的心思明显不在学习上。她双手合十：“大神带我飞吧，我会每天给你买奶茶，好吃好喝伺候你！”", "options": [{"label": "约她明晚一起自习", "target": "大一·秋·小组作业·随机·自习"}, {"label": "那估计得靠自己了", "target": "大一·秋·小组作业·随机·靠自己"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·小组作业·随机·自习": {"title": "大一·秋·小组作业·随机·自习", "body": "你认真把时间地点发给可欣。\n\n\n第二天晚上，她迟到了十分钟，但真的带了两杯奶茶。\n\n“我可能写得慢，”她小声说，“但我会努力不拖后腿。”", "options": [{"label": "返回本学期目录", "target": "大一·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·小组作业·随机·靠自己": {"title": "大一·秋·小组作业·随机·靠自己", "body": "你表面答应得很淡定，实际已经开始在心里拆任务。\n\n\n最后大部分代码还是你写的。可欣负责做展示 PPT，并把页面修得意外好看。", "options": [{"label": "返回本学期目录", "target": "大一·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·期中·陆·自习": {"title": "大一·秋·期中·陆·自习", "body": "你选择去图书馆。陆明川的讲解很有效，你终于把最卡的递归题想明白了。\n\n\n回宿舍时，桌上给你留了一块蛋糕。陈明明说：“没关系，考试比较重要。”", "options": [{"label": "返回本学期目录", "target": "大一·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·期中·陆·生日": {"title": "大一·秋·期中·陆·生日", "body": "你先陪陈明明过生日。她收到你们凑钱买的小台灯时，明显愣了一下。\n\n\n晚饭后，你赶去图书馆。陆明川已经把重点整理成一页纸发给你：“下次早点说。”", "options": [{"label": "返回本学期目录", "target": "大一·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·期中·陈明明": {"title": "大一·秋·期中·陈明明", "body": "陈明明把自习室位置发给你。\n\n\n她不太会安慰人，但会默默把知识点整理成清单。你们并排写题，偶尔交换一张草稿纸。", "options": [{"label": "返回本学期目录", "target": "大一·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·期中·可欣": {"title": "大一·秋·期中·可欣", "body": "可欣拉你去买奶茶：“先把脑子从报错里拔出来，不然你看书也看不进去。”\n\n\n你们在奶茶店坐了半小时。回来后，她负责盯着你别刷手机。", "options": [{"label": "返回本学期目录", "target": "大一·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "大一·秋·期中·林予夏": {"title": "大一·秋·期中·林予夏", "body": "林予夏帮你问学长学姐要复习资料。\n\n\n资料包很快传了过来，里面还有一份机器人社流传的“程序设计基础速通版”。你也因此再次听到许星河的名字。", "options": [{"label": "返回本学期目录", "target": "大一·秋·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "寒假·校外公司实习": {"title": "寒假·校外公司实习", "body": "你投到一家校外小公司的寒假实习。办公室不大，工位挤在会议室旁边，但项目是真实上线的。\n\n\n某天晚上，你在调接口时遇见同样来做短期项目的陆明川。他看了一眼你的报错日志：“这个不是你代码的问题，是接口文档写漏了。”\n\n\n你第一次意识到，课堂之外的程序世界也有自己的混乱和规则。", "options": [{"label": "进入大一·春", "target": "大一·春·目录"}], "notes": "（可以在这里写：这里要加什么剧情/选项/人物/条件）"}, "年级目录": {"title": "年级目录", "body": "这里是自动生成的全局节点目录。", "options": [{"label": "开始", "target": "开始"}, {"label": "大一·秋·目录", "target": "大一·秋·目录"}, {"label": "大一·秋·宿舍报到", "target": "大一·秋·宿舍报到"}, {"label": "大一·秋·社团招新", "target": "大一·秋·社团招新"}, {"label": "大一·秋·体育选课", "target": "大一·秋·体育选课"}, {"label": "大一·秋·入学震撼", "target": "大一·秋·入学震撼"}, {"label": "大一·秋·小组作业", "target": "大一·秋·小组作业"}, {"label": "大一·秋·期中考试", "target": "大一·秋·期中考试"}, {"label": "大一·秋·体测·初遇晨光", "target": "大一·秋·体测·初遇晨光"}, {"label": "大一·秋·食堂事件", "target": "大一·秋·食堂事件"}, {"label": "大一下·寒假", "target": "大一下·寒假"}, {"label": "大一·春·目录", "target": "大一·春·目录"}, {"label": "大一·暑假", "target": "大一·暑假"}, {"label": "大一·秋·小组作业·AB", "target": "大一·秋·小组作业·AB"}, {"label": "大一·秋·小组作业·折中", "target": "大一·秋·小组作业·折中"}, {"label": "大一·秋·期中·自修", "target": "大一·秋·期中·自修"}, {"label": "大一·秋·期中·许", "target": "大一·秋·期中·许"}, {"label": "大一·秋·期中·陆", "target": "大一·秋·期中·陆"}, {"label": "大一·秋·社团加入结果", "target": "大一·秋·社团加入结果"}, {"label": "大一·秋·社团·ACM", "target": "大一·秋·社团·ACM"}, {"label": "大一·秋·社团·学生会", "target": "大一·秋·社团·学生会"}, {"label": "大一·秋·社团·动漫游戏", "target": "大一·秋·社团·动漫游戏"}, {"label": "大一·秋·社团·志愿者", "target": "大一·秋·社团·志愿者"}, {"label": "寒假·冬令营", "target": "寒假·冬令营"}, {"label": "寒假·回家", "target": "寒假·回家"}, {"label": "寒假·校内项目", "target": "寒假·校内项目"}, {"label": "大一·春·ACM复盘", "target": "大一·春·ACM复盘"}, {"label": "大一·春·ACM点评·陆", "target": "大一·春·ACM点评·陆"}, {"label": "大一·春·ACM选拔", "target": "大一·春·ACM选拔"}, {"label": "大一·春·实习申请", "target": "大一·春·实习申请"}, {"label": "大一·春·社团首秀", "target": "大一·春·社团首秀"}, {"label": "大一·春·简历优化", "target": "大一·春·简历优化"}, {"label": "大一·春", "target": "大一·春"}, {"label": "大一·春·请教未果", "target": "大一·春·请教未果"}, {"label": "暑假·ACM集训", "target": "暑假·ACM集训"}, {"label": "暑假·回家", "target": "暑假·回家"}, {"label": "暑假·小公司实习", "target": "暑假·小公司实习"}, {"label": "大一·秋·宿舍报到·去社团", "target": "大一·秋·宿舍报到·去社团"}, {"label": "大一·秋·宿舍报到·休息", "target": "大一·秋·宿舍报到·休息"}, {"label": "大一·秋·宿舍报到·逛街", "target": "大一·秋·宿舍报到·逛街"}, {"label": "大一·秋·社团观望", "target": "大一·秋·社团观望"}, {"label": "大一·秋·体育选课·游泳", "target": "大一·秋·体育选课·游泳"}, {"label": "大一·秋·体育选课·乒乓", "target": "大一·秋·体育选课·乒乓"}, {"label": "大一·秋·体育选课·篮球", "target": "大一·秋·体育选课·篮球"}, {"label": "大一·秋·体育选课·攀岩", "target": "大一·秋·体育选课·攀岩"}, {"label": "大一·秋·体育选课·武术", "target": "大一·秋·体育选课·武术"}, {"label": "大一·秋·入学震撼·举手", "target": "大一·秋·入学震撼·举手"}, {"label": "大一·秋·入学震撼·直接说", "target": "大一·秋·入学震撼·直接说"}, {"label": "大一·秋·入学震撼·沉默", "target": "大一·秋·入学震撼·沉默"}, {"label": "大一·秋·小组作业·独立", "target": "大一·秋·小组作业·独立"}, {"label": "大一·秋·小组作业·陈明明", "target": "大一·秋·小组作业·陈明明"}, {"label": "大一·秋·小组作业·陆明川", "target": "大一·秋·小组作业·陆明川"}, {"label": "大一·秋·小组作业·陆明川·讨论", "target": "大一·秋·小组作业·陆明川·讨论"}, {"label": "大一·秋·小组作业·随机", "target": "大一·秋·小组作业·随机"}, {"label": "大一·秋·小组作业·随机·自习", "target": "大一·秋·小组作业·随机·自习"}, {"label": "大一·秋·小组作业·随机·靠自己", "target": "大一·秋·小组作业·随机·靠自己"}, {"label": "大一·秋·期中·陆·自习", "target": "大一·秋·期中·陆·自习"}, {"label": "大一·秋·期中·陆·生日", "target": "大一·秋·期中·陆·生日"}, {"label": "大一·秋·期中·陈明明", "target": "大一·秋·期中·陈明明"}, {"label": "大一·秋·期中·可欣", "target": "大一·秋·期中·可欣"}, {"label": "大一·秋·期中·林予夏", "target": "大一·秋·期中·林予夏"}, {"label": "寒假·校外公司实习", "target": "寒假·校外公司实习"}], "notes": ""}, "大一·春·绩点压力": {"title": "大一·春·绩点压力", "body": "（这个节点目前还没有正式剧情，先作为占位，方便测试分支是否通。）", "options": [{"label": "返回全局目录", "target": "年级目录"}], "notes": "自动占位：原文本里有入口，但还没有对应章节。"}, "大二·秋·目录": {"title": "大二·秋·目录", "body": "（这个节点目前还没有正式剧情，先作为占位，方便测试分支是否通。）", "options": [{"label": "返回全局目录", "target": "年级目录"}], "notes": "自动占位：原文本里有入口，但还没有对应章节。"}}, "order": ["开始", "年级目录", "大一·秋·目录", "大一·秋·宿舍报到", "大一·秋·社团招新", "大一·秋·体育选课", "大一·秋·入学震撼", "大一·秋·小组作业", "大一·秋·期中考试", "大一·秋·体测·初遇晨光", "大一·秋·食堂事件", "大一下·寒假", "大一·春·目录", "大一·暑假", "大一·秋·小组作业·AB", "大一·秋·小组作业·折中", "大一·秋·期中·自修", "大一·秋·期中·许", "大一·秋·期中·陆", "大一·秋·社团加入结果", "大一·秋·社团·ACM", "大一·秋·社团·学生会", "大一·秋·社团·动漫游戏", "大一·秋·社团·志愿者", "寒假·冬令营", "寒假·回家", "寒假·校内项目", "大一·春·ACM复盘", "大一·春·ACM点评·陆", "大一·春·ACM选拔", "大一·春·实习申请", "大一·春·社团首秀", "大一·春·简历优化", "大一·春", "大一·春·请教未果", "暑假·ACM集训", "暑假·回家", "暑假·小公司实习", "大一·秋·宿舍报到·去社团", "大一·秋·宿舍报到·休息", "大一·秋·宿舍报到·逛街", "大一·秋·社团观望", "大一·秋·体育选课·游泳", "大一·秋·体育选课·乒乓", "大一·秋·体育选课·篮球", "大一·秋·体育选课·攀岩", "大一·秋·体育选课·武术", "大一·秋·入学震撼·举手", "大一·秋·入学震撼·直接说", "大一·秋·入学震撼·沉默", "大一·秋·小组作业·独立", "大一·秋·小组作业·陈明明", "大一·秋·小组作业·陆明川", "大一·秋·小组作业·陆明川·讨论", "大一·秋·小组作业·随机", "大一·秋·小组作业·随机·自习", "大一·秋·小组作业·随机·靠自己", "大一·秋·期中·陆·自习", "大一·秋·期中·陆·生日", "大一·秋·期中·陈明明", "大一·秋·期中·可欣", "大一·秋·期中·林予夏", "寒假·校外公司实习", "大一·春·绩点压力", "大二·秋·目录"], "aliases": {"大一·秋·期中危机": "大一·秋·期中考试"}, "start": "开始"};/*DATA:END*/
+
+/* ---------- 状态 ---------- */
+const LS_DATA='freshman_data_v2', LS_CUR='freshman_current', LS_HIS='freshman_history';
+function clone(o){return JSON.parse(JSON.stringify(o));}
+let store;
+try{ store = JSON.parse(localStorage.getItem(LS_DATA)); }catch(e){ store=null; }
+if(!store || !store.nodes) store = clone(DEFAULT_DATA);
+if(!store.aliases) store.aliases={};
+if(!store.order) store.order=Object.keys(store.nodes);
+
+let current = localStorage.getItem(LS_CUR) || store.start;
+if(!store.nodes[current]) current = store.start;
+let historyStack=[]; try{historyStack=JSON.parse(localStorage.getItem(LS_HIS))||[];}catch(e){}
+let mode='play';            // 'play' | 'edit'
+let ui={picker:-1};         // 哪个选项正在“选择已有节点”
+
+function DATA(){return store;}      // 给顶栏按钮用
+const $=id=>document.getElementById(id);
+
+/* ---------- 工具 ---------- */
+function esc(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function toast(s){const e=$('toast');e.textContent=s;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1700);}
+function node(){return store.nodes[current];}
+function titleOf(id){const n=store.nodes[id];return (n&&n.title)||id;}
+function resolveTarget(t){return store.aliases[t]||t;}
+function makeId(base){base=(base||'新节点').trim()||'新节点';let id=base,i=2;while(store.nodes[id]){id=base+'·'+i;i++;}return id;}
+
+function persist(){
+  localStorage.setItem(LS_DATA, JSON.stringify(store));
+  localStorage.setItem(LS_CUR, current);
+  localStorage.setItem(LS_HIS, JSON.stringify(historyStack.slice(-80)));
+}
+
+/* 让“年级目录”自动同步全部节点 */
+function syncDirectory(){
+  const d=store.nodes['年级目录']; if(!d) return;
+  d.options = store.order.filter(id=>id!=='年级目录' && store.nodes[id])
+                         .map(id=>({label:titleOf(id), target:id}));
+}
+
+/* ---------- 导航 ---------- */
+function go(t){
+  t=resolveTarget(t);
+  if(!store.nodes[t]){toast('未找到节点：'+t);return;}
+  if(current!==t) historyStack.push(current);
+  current=t; ui.picker=-1; persist(); render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function back(){ if(historyStack.length){current=historyStack.pop();ui.picker=-1;persist();render();} }
+function restart(){ current=store.start; historyStack=[]; ui.picker=-1; persist(); render(); }
+
+function setMode(m){
+  mode=m; ui.picker=-1;
+  $('mPlay').classList.toggle('on',m==='play');
+  $('mEdit').classList.toggle('on',m==='edit');
+  $('modehint').textContent = m==='edit'
+    ? '编辑模式：可改正文、加选项、点“新建后续剧情并进入”继续往下写。'
+    : '点击分支试玩；剧情与备注保存在当前浏览器。';
+  render();
+}
+
+/* ---------- 渲染 ---------- */
+function render(){
+  syncDirectory();
+  const n=node()||store.nodes[store.start];
+  const card=$('nodeCard'); card.innerHTML='';
+
+  /* 路径行 */
+  const path=el('div','path');
+  if(historyStack.length){ path.appendChild(btn('← 返回上一步','ghost tiny',back)); }
+  const pc=el('span'); pc.innerHTML='当前：<b>'+esc(n.title||current)+'</b> ';
+  const idt=el('span','idtag'); idt.textContent='#'+current; pc.appendChild(idt);
+  path.appendChild(pc);
+  card.appendChild(path);
+
+  if(mode==='edit') renderEdit(card,n); else renderPlay(card,n);
+
+  /* 备注面板（两种模式都有） */
+  card.appendChild(renderNotes(n));
+
+  renderList($('search').value||'');
+}
+
+/* 试玩视图 */
+function renderPlay(card,n){
+  const t=el('h1','title'); t.textContent=n.title||current; card.appendChild(t);
+  const b=el('div','body'); b.textContent=n.body||'（暂无正文）'; card.appendChild(b);
+  const c=el('div','choices');
+  (n.options||[]).forEach(o=>{
+    const hasT=o.target && store.nodes[resolveTarget(o.target)];
+    const b=el('button','choice'+(hasT?'':' disabled'));
+    b.textContent=o.label+(hasT?'':'　（未设置去向）');
+    b.onclick=()=> hasT ? go(o.target) : toast('这个选项还没有去向，去“编辑”里设置吧');
+    c.appendChild(b);
+  });
+  if(!(n.options||[]).length){
+    const empty=el('div','small'); empty.style.marginTop='18px';
+    empty.textContent='这里还没有选项。切到“编辑”模式就能加分支。';
+    c.appendChild(empty);
+  }
+  card.appendChild(c);
+}
+
+/* 编辑视图 */
+function renderEdit(card,n){
+  const banner=el('div','editbanner');
+  banner.textContent='你在编辑这个节点。改动即时保存，可随时切回“试玩”查看效果。';
+  card.appendChild(banner);
+
+  /* 标题 */
+  card.appendChild(lbl('节点标题（玩家会看到）'));
+  const ti=el('input','text'); ti.value=n.title||''; ti.placeholder='例如：大一·秋·社团招新';
+  ti.oninput=()=>{ n.title=ti.value; persist(); };
+  card.appendChild(ti);
+
+  /* 正文 */
+  card.appendChild(lbl('剧情正文'));
+  const ta=el('textarea'); ta.value=n.body||''; ta.style.minHeight='200px';
+  ta.placeholder='在这里写这一段剧情……回车换行即可。';
+  ta.oninput=()=>{ n.body=ta.value; persist(); };
+  card.appendChild(ta);
+
+  /* 选项 / 分支 */
+  card.appendChild(lbl('选项 / 分支（玩家点这些往下走）'));
+  const list=el('div'); list.id='optList';
+  (n.options||[]).forEach((o,i)=>list.appendChild(optionEditor(n,o,i)));
+  if(!(n.options||[]).length){
+    const hint=el('div','small'); hint.textContent='还没有选项。点下面“＋ 添加选项 / 分支”。';
+    list.appendChild(hint);
+  }
+  card.appendChild(list);
+
+  const addbar=el('div','addbar');
+  addbar.appendChild(btn('＋ 添加选项 / 分支','',()=>addOption(n)));
+  addbar.appendChild(el('span','spacer'));
+  addbar.appendChild(btn('重命名节点ID','ghost tiny',()=>renameId(current)));
+  if(current!==store.start) addbar.appendChild(btn('删除此节点','danger tiny',()=>deleteNode(current)));
+  card.appendChild(addbar);
+}
+
+/* 单个选项的编辑卡片 */
+function optionEditor(n,o,i){
+  const box=el('div','opt-edit');
+
+  /* 第一行：选项文字 */
+  const r1=el('div','row');
+  r1.appendChild(el('span','opt-num')).textContent=(i+1)+'.';
+  const li=el('input','text'); li.style.flex='1'; li.style.minWidth='160px';
+  li.value=o.label||''; li.placeholder='玩家看到的选项文字，如：跟林予夏去看社团招新';
+  li.oninput=()=>{ o.label=li.value; persist(); };
+  r1.appendChild(li);
+  box.appendChild(r1);
+
+  /* 第二行：去向 */
+  const r2=el('div','row');
+  r2.appendChild(tag('去向'));
+  const dest=el('div','dest'); buildDest(dest,n,o,i); r2.appendChild(dest);
+  box.appendChild(r2);
+
+  /* 第三行：排序 / 删除 */
+  const r3=el('div','row');
+  const up=btn('↑','ghost tiny',()=>moveOption(n,i,-1)); up.disabled=(i===0);
+  const dn=btn('↓','ghost tiny',()=>moveOption(n,i,1)); dn.disabled=(i===n.options.length-1);
+  r3.appendChild(up); r3.appendChild(dn);
+  r3.appendChild(el('span','spacer'));
+  r3.appendChild(btn('删除选项','danger tiny',()=>{ n.options.splice(i,1); persist(); render(); }));
+  box.appendChild(r3);
+
+  return box;
+}
+
+/* 去向区域：根据是否选“选择已有节点”切换 */
+function buildDest(dest,n,o,i){
+  dest.innerHTML='';
+  if(ui.picker===i){
+    const sel=el('select','text');
+    const ph=el('option'); ph.value=''; ph.textContent='— 选择一个已有节点 —'; sel.appendChild(ph);
+    store.order.filter(id=>store.nodes[id]).forEach(id=>{
+      const op=el('option'); op.value=id; op.textContent=titleOf(id)+'  (#'+id+')';
+      if(resolveTarget(o.target)===id) op.selected=true; sel.appendChild(op);
+    });
+    dest.appendChild(sel);
+    dest.appendChild(btn('确定','tiny',()=>{ if(sel.value){o.target=sel.value;} ui.picker=-1; persist(); render(); }));
+    dest.appendChild(btn('取消','ghost tiny',()=>{ ui.picker=-1; render(); }));
+    return;
+  }
+  const tgt=resolveTarget(o.target);
+  if(o.target && store.nodes[tgt]){
+    const chip=el('span','chip'); chip.textContent='→ '+titleOf(tgt); dest.appendChild(chip);
+    dest.appendChild(btn('进入编辑 →','tiny',()=>go(o.target)));
+    dest.appendChild(btn('换节点','ghost tiny',()=>{ ui.picker=i; render(); }));
+    dest.appendChild(btn('清除去向','ghost tiny',()=>{ o.target=''; persist(); render(); }));
+  }else{
+    if(o.target){ const chip=el('span','chip warn'); chip.textContent='⚠ 找不到节点：'+o.target; dest.appendChild(chip); }
+    dest.appendChild(btn('＋ 新建后续剧情并进入','tiny',()=>createNext(n,i)));
+    dest.appendChild(btn('链接到已有节点','ghost tiny',()=>{ ui.picker=i; render(); }));
+  }
+}
+
+/* ---------- 编辑动作 ---------- */
+function addOption(n){
+  if(!n.options) n.options=[];
+  n.options.push({label:'新选项',target:''});
+  persist(); render();
+  /* 聚焦最后一个选项的文字输入框 */
+  const inputs=$('optList').querySelectorAll('.opt-edit input.text');
+  const last=inputs[inputs.length-1]; if(last){last.focus();last.select();}
+}
+function moveOption(n,i,dir){
+  const j=i+dir; if(j<0||j>=n.options.length) return;
+  const t=n.options[i]; n.options[i]=n.options[j]; n.options[j]=t;
+  persist(); render();
+}
+function createNext(n,i){
+  const o=n.options[i];
+  let base=(o.label||'').trim();
+  if(!base || base==='新选项'){
+    base=prompt('给这段新剧情起个标题（玩家会看到）：', base&&base!=='新选项'?base:'新剧情');
+    if(base===null) return; base=base.trim()||'新剧情';
+    if(!o.label||o.label==='新选项'){ o.label=base; }
+  }
+  const id=makeId(base);
+  store.nodes[id]={title:base,body:'',options:[],notes:''};
+  store.order.push(id);
+  o.target=id;
+  syncDirectory(); persist();
+  go(id);
+  toast('已新建「'+base+'」，继续往下写吧');
+}
+function renameId(oldId){
+  const newId=(prompt('节点ID（内部标识，玩家看不到，用于选项跳转）：',oldId)||'').trim();
+  if(!newId||newId===oldId) return;
+  if(store.nodes[newId]){toast('已存在同名ID');return;}
+  store.nodes[newId]=store.nodes[oldId]; delete store.nodes[oldId];
+  store.order=store.order.map(x=>x===oldId?newId:x);
+  for(const k in store.nodes)(store.nodes[k].options||[]).forEach(o=>{if(resolveTarget(o.target)===oldId&&o.target===oldId)o.target=newId;});
+  for(const a in store.aliases) if(store.aliases[a]===oldId) store.aliases[a]=newId;
+  const nk='freshman_note_'+oldId,v=localStorage.getItem(nk);
+  if(v!=null){localStorage.setItem('freshman_note_'+newId,v);localStorage.removeItem(nk);}
+  if(store.start===oldId) store.start=newId;
+  if(current===oldId) current=newId;
+  historyStack=historyStack.map(x=>x===oldId?newId:x);
+  syncDirectory(); persist(); render(); toast('已重命名为 '+newId);
+}
+function deleteNode(id){
+  if(id===store.start){toast('起始节点不能删除');return;}
+  if(!confirm('删除节点「'+titleOf(id)+'」？\n指向它的选项会变成“未设置去向”。')) return;
+  delete store.nodes[id];
+  store.order=store.order.filter(x=>x!==id);
+  for(const k in store.nodes)(store.nodes[k].options||[]).forEach(o=>{if(resolveTarget(o.target)===id)o.target='';});
+  localStorage.removeItem('freshman_note_'+id);
+  historyStack=historyStack.filter(x=>x!==id);
+  current = historyStack.length ? historyStack.pop() : store.start;
+  syncDirectory(); persist(); render(); toast('已删除');
+}
+
+/* ---------- 备注 ---------- */
+function renderNotes(n){
+  const d=el('details','panel');
+  const s=el('summary'); s.textContent='我的测试备注 / 原文备注'; d.appendChild(s);
+  const hint=el('div','small'); hint.style.marginTop='8px';
+  hint.textContent='边玩边记问题，只存这个浏览器；点工具栏“导出备注”可复制出来。';
+  d.appendChild(hint);
+  const ta=el('textarea'); ta.value=localStorage.getItem('freshman_note_'+current)||'';
+  ta.oninput=()=>localStorage.setItem('freshman_note_'+current,ta.value);
+  d.appendChild(ta);
+  const orig=el('div','footer');
+  orig.innerHTML = n.notes ? ('<b>原文备注：</b><br>'+esc(n.notes)) : '<b>原文备注：</b>（无）';
+  d.appendChild(orig);
+  return d;
+}
+function exportNotes(){
+  const out=[];
+  for(const t of store.order){const v=localStorage.getItem('freshman_note_'+t); if(v&&v.trim()) out.push('## '+t+'\n'+v.trim());}
+  if(!out.length){toast('还没有测试备注');return;}
+  const text=out.join('\n\n');
+  (navigator.clipboard?.writeText(text)||Promise.reject()).then(()=>toast('备注已复制')).catch(()=>prompt('复制你的备注：',text));
+}
+
+/* ---------- 列表 ---------- */
+function toggleList(){const p=$('listPanel');p.style.display=p.style.display==='none'?'block':'none';renderList($('search').value||'');}
+function renderList(q=''){
+  const list=$('nodeList'); if(!list) return;
+  const qq=q.trim().toLowerCase(); list.innerHTML='';
+  store.order.filter(t=>store.nodes[t]).filter(t=>{
+    if(!qq) return true;
+    const n=store.nodes[t];
+    return t.toLowerCase().includes(qq)||(n.title||'').toLowerCase().includes(qq)||(n.body||'').toLowerCase().includes(qq)||(n.notes||'').toLowerCase().includes(qq);
+  }).forEach(t=>{
+    const d=el('div','nodeItem'); d.textContent=titleOf(t);
+    d.onclick=()=>{ $('listPanel').style.display='none'; go(t); };
+    list.appendChild(d);
+  });
+}
+
+/* ---------- 导入 / 导出 ---------- */
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'});
+  downloadBlob(blob,'剧情树备份.json'); toast('已导出 JSON 备份');
+}
+function importJSON(file){
+  if(!file) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{
+    const d=JSON.parse(r.result);
+    if(!d.nodes) throw 0;
+    if(!confirm('导入会覆盖当前剧情树（建议先“备份”）。确定导入？')) return;
+    store=d; if(!store.aliases)store.aliases={}; if(!store.order)store.order=Object.keys(store.nodes);
+    current = store.nodes[current]?current:store.start; historyStack=[];
+    syncDirectory(); persist(); render(); toast('已导入');
+  }catch(e){ toast('导入失败：文件格式不对'); } };
+  r.readAsText(file);
+}
+function buildExportHTML(){
+  syncDirectory();
+  const clone=document.documentElement.cloneNode(true);
+  /* 用当前剧情替换导出文件里的默认数据 */
+  const app=clone.querySelector('#app');
+  const block='/*DATA:START*/const DEFAULT_DATA = '+JSON.stringify(store)+';/*DATA:END*/';
+  app.textContent=app.textContent.replace(/\/\*DATA:START\*\/[\s\S]*?\/\*DATA:END\*\//, block);
+  /* 清掉运行时渲染的内容，导出文件打开时会自己重画 */
+  const nc=clone.querySelector('#nodeCard'); if(nc) nc.innerHTML='';
+  const lp=clone.querySelector('#listPanel'); if(lp){lp.style.display='none';lp.querySelector('#nodeList').innerHTML='';}
+  const sb=clone.querySelector('#search'); if(sb) sb.setAttribute('value','');
+  return '<!doctype html>\n'+clone.outerHTML;
+}
+function downloadHTML(){
+  downloadBlob(new Blob([buildExportHTML()],{type:'text/html'}),'大一剧情树_可编辑版.html');
+  toast('已导出网页：可双击打开 / 发给别人');
+}
+function downloadBlob(blob,name){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+/* ---------- 小工具：建 DOM ---------- */
+function el(tag,cls){const e=document.createElement(tag); if(cls)e.className=cls; return e;}
+function btn(text,cls,fn){const b=el('button',cls||'secondary'); b.textContent=text; b.onclick=fn; return b;}
+function lbl(text){const e=el('div','lbl'); e.textContent=text; return e;}
+function tag(text){const e=el('span','badge'); e.textContent=text; return e;}
+
+render();
+</script>
+</body>
+</html>
